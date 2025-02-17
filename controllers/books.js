@@ -44,5 +44,20 @@ router.put("/:bookId", verifyToken, async (req, res) => {
       res.status(500).json({ err: err.message });
     }
   });
+
+  router.delete("/:bookId", verifyToken, async (req, res) => {
+    try {
+      const book = await Book.findById(req.params.bookId);
+  
+      if (!book.owner.equals(req.user._id)) {
+        return res.status(403).send("You're not allowed to do that!");
+      }
+  
+      const deletedBook = await Book.findByIdAndDelete(req.params.bookId);
+      res.status(200).json(deletedBook);
+    } catch (err) {
+      res.status(500).json({ err: err.message });
+    }
+  });
   
 module.exports = router;
