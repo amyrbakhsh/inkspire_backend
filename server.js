@@ -19,13 +19,13 @@ mongoose.connection.on('connected', () => {
 app.use(cors())
 app.use(express.json())
 app.use(logger('dev'))
-app.use("/books", booksRouter);
+
 
 // Routes go here
 app.use('/auth', authRouter)
 app.use('/test-jwt', testJwtRouter)
 app.use('/users', usersRouter)
-
+app.use("/books", booksRouter);
 
 
 app.listen( process.env.PORT || 3000, () => {
