@@ -15,3 +15,34 @@ router.post("/", verifyToken, async (req, res) => {
   }
 );
 module.exports = router;
+
+
+
+router.put("/:bookId", verifyToken, async (req, res) => {
+    
+    try {
+      const book = await Book.findById(req.params.bookId);
+      
+      if (!book.owner.equals(req.user._id)) {
+        return res.status(403).send("You're not allowed to do that!");
+      }
+  
+
+      
+      const updatedBook = await Book.findByIdAndUpdate(
+        req.params.bookId,
+        req.body,
+        { new: true }
+      );
+  
+      // Append req.user to the author property:
+      updatedBook._doc.owner = req.user;
+  
+      // Issue JSON response:
+      res.status(200).json(updatedBook);
+    } catch (err) {
+      res.status(500).json({ err: err.message });
+    }
+  });
+  
+module.exports = router;
