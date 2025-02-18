@@ -72,5 +72,37 @@ router.get("/", verifyToken, async (req, res) => {
   }
 });
 
+
+// GET /books/:id - View book details
+router.get("/:id", verifyToken, async (req, res) => {
+  try {
+    const book = await Book.findById(req.params.id).populate("owner", "name");
+    
+    if (!book) {
+      return res.status(404).json({ message: "Book not found" });
+    }
+    
+    res.status(200).json(book);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// GET /books/:id/reviews - View all reviews for a book
+router.get("/:id/reviews", verifyToken, async (req, res) => {
+  try {
+    const book = await Book.findById(req.params.id).populate("review.reviewer", "name");
+
+    if (!book) {
+      return res.status(404).json({ message: "Book not found" });
+    }
+
+    res.status(200).json(book.review);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
   
 module.exports = router;
