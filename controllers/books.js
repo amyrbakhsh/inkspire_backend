@@ -120,4 +120,27 @@ router.post("/:bookId/reviews", verifyToken, async (req, res) => {
   });
 
 
+//delete reviews
+  router.delete("/:bookId/reviews/:reviewId", verifyToken, async (req, res) => {
+    try {
+      const book = await Book.findById(req.params.bookId);
+      const review = book.reviews.id(req.params.reviewId);
+      console.log('book',book)
+      console.log('review',review)
+      // ensures the current user is the author of the comment
+      console.log("review owner: ", review.owner)
+      console.log(req.user._id)
+      if (review.owner.toString() !== req.user._id) {
+        return res
+          .status(403)
+          .json({ message: "You are not authorized to edit this review" });
+      }
+      book.reviews.remove({ _id: req.params.reviewId });
+      await book.save();
+      res.status(200).json({ message: "review deleted successfully" });
+    } catch (err) {
+      res.status(500).json({ err: err.message });
+    }
+  });
+
 module.exports = router;
