@@ -59,5 +59,18 @@ router.put("/:bookId", verifyToken, async (req, res) => {
       res.status(500).json({ err: err.message });
     }
   });
+
+
+    
+// GET /books - View all books
+router.get("/", verifyToken, async (req, res) => {
+  try {
+    const books = await Book.find().populate("owner", "name").sort({ createdAt: "desc" });
+    res.status(200).json(books);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
   
 module.exports = router;
