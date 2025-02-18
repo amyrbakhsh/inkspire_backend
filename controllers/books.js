@@ -120,6 +120,32 @@ router.post("/:bookId/reviews", verifyToken, async (req, res) => {
   });
 
 
+
+//update reviews 
+router.put("/:bookId/reviews/:reviewId", verifyToken, async (req, res) => {
+    try {
+      const book = await Book.findById(req.params.bookId);
+      const review = book.reviews.id(req.params.reviewId);
+  
+      // ensures the current user is the author of the comment
+      if (review.owner.toString() !== req.user._id) {
+        return res
+          .status(403)
+          .json({ message: "You are not authorized to edit this review" });
+      }
+  
+      review.text = req.body.text;
+      await book.save();
+      res.status(200).json({ message: "review updated successfully" });
+    } catch (err) {
+      res.status(500).json({ err: err.message });
+    }
+  });
+
+
+
+
+
 //delete reviews
   router.delete("/:bookId/reviews/:reviewId", verifyToken, async (req, res) => {
     try {
