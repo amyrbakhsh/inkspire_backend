@@ -92,17 +92,32 @@ router.get("/:id", verifyToken, async (req, res) => {
 // GET /books/:id/reviews - View all reviews for a book
 router.get("/:id/reviews", verifyToken, async (req, res) => {
   try {
-    const book = await Book.findById(req.params.id).populate("review.reviewer", "name");
+    const book = await Book.findById(req.params.id).populate("reviews.reviewer", "name");
 
     if (!book) {
       return res.status(404).json({ message: "Book not found" });
     }
 
-    res.status(200).json(book.review);
+    res.status(200).json(book.reviews);
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 });
 
-  
+//add review
+router.post("/:bookId/reviews", verifyToken, async (req, res) => {
+    try {
+      req.body.owner = req.user._id;
+      const book = await Book.findById(req.params.bookId);
+      book.reviews.push(req.body);
+      await book.save();
+      const newReview = book.reviews[book.reviews.length - 1];
+      newReview._doc.owner = req.user;
+      res.status(201).json(newReview);
+    } catch (err) {
+      res.status(500).json({ err: err.message });
+    }
+  });
+
+
 module.exports = router;
