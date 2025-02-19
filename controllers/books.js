@@ -117,7 +117,7 @@ router.get("/:id", verifyToken, async (req, res) => {
 // GET /books/:id/reviews - View all reviews for a book
 router.get("/:id/reviews", verifyToken, async (req, res) => {
   try {
-    const book = await Book.findById(req.params.id).populate("reviews.reviewer", "name");
+    const book = await Book.findById(req.params.id).populate("reviews.owner", "name");
 
     if (!book) {
       return res.status(404).json({ message: "Book not found" });
