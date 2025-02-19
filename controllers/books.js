@@ -2,48 +2,73 @@ const express = require("express");
 const verifyToken = require("../middleware/verify-token.js");
 const Book = require("../models/Book.js");
 const router = express.Router();
+const upload = require("../middleware/upload.js");
+const uploadImageToImgur = require("../config/imgur.js");
 
-router.post("/", verifyToken, async (req, res) => {
-    try {
-      req.body.owner = req.user._id;
-      const book = await Book.create(req.body);
-      book._doc.owner = req.user;
-      res.status(201).json(book);
-    } catch (err) {
-      res.status(500).json({ err: err.message });
-    }
-  }
-);
 module.exports = router;
 
 
 
-router.put("/:bookId", verifyToken, async (req, res) => {
-    
+// Add Book with Image Upload
+router.post("/", verifyToken, upload.single("image"), async (req, res) => {
     try {
-      const book = await Book.findById(req.params.bookId);
-      
-      if (!book.owner.equals(req.user._id)) {
-        return res.status(403).send("You're not allowed to do that!");
-      }
-  
+        console.log("Received book creation request from user:", req.user._id);
+        console.log("Request body:", {
+            title: req.body.title,
+            description: req.body.description,
+            category: req.body.category
+        });
+        
+        // Validate required fields
+        if (!req.body.title || !req.body.description || !req.body.category) {
+            console.log("Missing required fields in request");
+            return res.status(400).json({ error: "All fields (title, description, category) are required." });
+        }
 
-      
-      const updatedBook = await Book.findByIdAndUpdate(
-        req.params.bookId,
-        req.body,
-        { new: true }
-      );
-  
-      // Append req.user to the author property:
-      updatedBook._doc.owner = req.user;
-  
-      // Issue JSON response:
-      res.status(200).json(updatedBook);
+        // Handle image upload
+        let imageUrl = null;
+        if (req.file) {
+            console.log("Received image file:", {
+                originalname: req.file.originalname,
+                size: req.file.size,
+                mimetype: req.file.mimetype
+            });
+            try {
+                imageUrl = await uploadImageToImgur(req.file.buffer);
+                console.log("Image successfully uploaded to Imgur:", imageUrl);
+            } catch (imgurError) {
+                console.error("Imgur upload failed:", imgurError);
+                return res.status(500).json({ error: "Failed to upload image to Imgur" });
+            }
+        } else {
+            console.log("No image file received in request");
+        }
+
+        // Create new book
+        const newBook = await Book.create({
+            title: req.body.title,
+            description: req.body.description,
+            category: req.body.category,
+            owner: req.user._id,
+            image: imageUrl,
+        });
+
+        console.log("Successfully created new book:", {
+            id: newBook._id,
+            title: newBook.title,
+            image: newBook.image
+        });
+
+        res.status(201).json(newBook);
     } catch (err) {
-      res.status(500).json({ err: err.message });
+        console.error("Error creating book:", err);
+        res.status(500).json({ 
+            error: "Failed to create book",
+            details: err.message 
+        });
     }
-  });
+});
+
 
   router.delete("/:bookId", verifyToken, async (req, res) => {
     try {
