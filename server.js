@@ -9,6 +9,7 @@ const testJwtRouter = require('./controllers/test-jwt')
 const authRouter = require('./controllers/auth')
 const usersRouter = require('./controllers/users')
 const booksRouter = require("./controllers/books.js");
+const path = require('path');
 
 mongoose.connect(process.env.MONGODB_URI)
 
@@ -26,6 +27,8 @@ app.use('/auth', authRouter)
 app.use('/test-jwt', testJwtRouter)
 app.use('/users', usersRouter)
 app.use("/books", booksRouter);
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
 
 
 app.listen( process.env.PORT || 3000, () => {

@@ -28,6 +28,7 @@ const bookSchema = new mongoose.Schema(
         enum: ['Fantasy', 'Horror', 'Science fiction', 'Thriller', 'Mystery', 'Biography','Graphic novel'],
       },
       owner: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
+      image: { type: String, default: null },
       reviews: [reviewSchema],
     },
     { timestamps: true }
