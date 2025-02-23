@@ -12,13 +12,7 @@ module.exports = router;
 // Add Book with Image Upload
 router.post("/", verifyToken, upload.single("image"), async (req, res) => {
     try {
-        console.log("Received book creation request from user:", req.user._id);
-        console.log("Request body:", {
-            title: req.body.title,
-            description: req.body.description,
-            category: req.body.category
-        });
-        
+
         // Validate required fields
         if (!req.body.title || !req.body.description || !req.body.category) {
             console.log("Missing required fields in request");
@@ -28,11 +22,7 @@ router.post("/", verifyToken, upload.single("image"), async (req, res) => {
         // Handle image upload
         let imageUrl = null;
         if (req.file) {
-            console.log("Received image file:", {
-                originalname: req.file.originalname,
-                size: req.file.size,
-                mimetype: req.file.mimetype
-            });
+           
             try {
                 imageUrl = await uploadImageToImgur(req.file.buffer);
                 console.log("Image successfully uploaded to Imgur:", imageUrl);
@@ -53,11 +43,7 @@ router.post("/", verifyToken, upload.single("image"), async (req, res) => {
             image: imageUrl,
         });
 
-        console.log("Successfully created new book:", {
-            id: newBook._id,
-            title: newBook.title,
-            image: newBook.image
-        });
+
 
         res.status(201).json(newBook);
     } catch (err) {
