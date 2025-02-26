@@ -61,5 +61,11 @@ The application uses Express routers to handle different routes:
 - Zainab Hammad
 - Abdulla Bakhsh
 
+## Front-end Repository
+- **Project Name**: InkSpire
+- For more details about the InkSpire project please visit the link below.
+- **Repository Link**: [InkSpire Front-end Repository](https://github.com/amyrbakhsh/inkspire_frontend/tree/main)
+
+
 ## License
 This project is licensed under the MIT License.

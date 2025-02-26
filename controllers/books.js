@@ -53,6 +53,10 @@ router.post("/", verifyToken, upload.single("image"), async (req, res) => {
 router.put("/:bookId", verifyToken, upload.single("image"), async (req, res) => {
     try {
         const book = await Book.findById(req.params.bookId);
+        if (!book.owner.equals(req.user._id)) {
+            return res.status(403).send("You're not allowed to do that!");
+        }
+        
         if (!book) {
             return res.status(404).json({ message: "Book not found" });
         }
@@ -155,6 +159,8 @@ router.put("/:bookId/reviews/:reviewId", verifyToken, async (req, res) => {
     try {
         const book = await Book.findById(req.params.bookId);
         const review = book.reviews.id(req.params.reviewId);
+
+
         if (review.owner.toString() !== req.user._id) {
             return res.status(403).json({ message: "You are not authorized to edit this review" });
         }
